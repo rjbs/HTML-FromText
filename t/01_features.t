@@ -106,8 +106,8 @@ __HTML__
 $t2h = HTML::FromText->new({paras => 1, bullets => 1, bold => 1});
 $html = $t2h->parse( <<__TEXT__ );
 * One
-  - Half
-  - Whole
+  * Half
+  * Whole
     * Shabang
       Dude
 * Two

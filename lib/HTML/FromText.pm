@@ -20,16 +20,21 @@ HTML::FromText - Convert plain text to HTML.
 use strict;
 use Scalar::Util          qw[blessed];
 use HTML::Entities        qw[encode_entities];
-use Regexp::Common        qw[delimited URI];
+use Regexp::Common        qw[delimited];
 use Text::Tabs            qw[expand];
 use Email::Find::addrspec qw[$Addr_spec_re];
 use Exporter::Lite;
 
-use vars qw[$VERSION @EXPORT @DECORATORS];
+use vars qw[$VERSION @EXPORT @DECORATORS $PROTOCOLS];
 
-$VERSION    = '2.00';
+$VERSION    = '2.01';
 @EXPORT     = qw[text2html];
 @DECORATORS = qw[urls email bold underline];
+$PROTOCOLS  = qr/
+                 afs      | cid      | ftp      | gopher   |
+                 http     | https    | mid      | news     |
+                 nntp     | prospero | telnet   | wais
+                /x;
 
 =head1 DESCRIPTION
 
@@ -137,7 +142,7 @@ All spaces are HTML encoded.
 
 =item B<paras>
 
-This option is off be default.
+This option is off by default.
 
 Preserves paragraphs by wrapping them in C<p> tags.
 
@@ -285,7 +290,7 @@ sub parse {
 
 =head2 Functions
 
-=head2 text2html
+=head3 text2html
 
     my $html = text2html(
                          $text,
@@ -454,7 +459,8 @@ Return value is ignored.
 
 sub bullets {
     my ($self) = @_;
-    $self->_format_list( qr/[*-]/, 'ul' );
+    $self->_format_list( qr/[*]/, 'ul' );
+    $self->_format_list( qr/[-]/, 'ul' );
 }
 
 =head3 numbers
@@ -467,7 +473,7 @@ Return value is ignored.
 
 sub numbers {
     my ($self) = @_;
-    $self->_format_list( qr/[0-9]/, 'ol' );
+    $self->_format_list( qr/[0-9]/, 'ol');
 }
 
 =head3 tables
@@ -572,7 +578,7 @@ Return value is ignored.
 
 sub urls {
     my ($self) = @_;
-    $self->{html} =~ s[$RE{URI}{-keep}]
+    $self->{html} =~ s[\b((?:$PROTOCOLS):[^\s<]+[\w/])]
                       [<a href="$1">$1</a>]og;
 }
 
@@ -606,8 +612,8 @@ Return value is ignored.
 
 sub underline {
     my ($self) = @_;
-    $self->{html} =~ s[$RE{delimited}{-delim=>'_'}{-keep}]
-                      [index($3,"\n") > -1 ? $1 : "<u>$3</u>"]oge;
+    $self->{html} =~ s[(?:^|(?<=\W))((_)([^\\_\n]*(?:\\.[^\\_\n]*)*)(_))(?:(?=\W)|$)]
+                      [<u>$3</u>]g;
 }
 
 =head3 bold
@@ -622,8 +628,8 @@ Return value is ignored.
 
 sub bold {
     my ($self) = @_;
-    $self->{html} =~ s[$RE{delimited}{-delim=>'*'}{-keep}]
-                      [index($3,"\n") > -1 ? $1 : "<strong>$3</strong>"]oge;
+    $self->{html} =~ s[(?:^|(?<=\W))((\*)([^\\\*\n]*(?:\\.[^\\\*\n]*)*)(\*))(?:(?=\W)|$)]
+                      [<strong>$3</strong>]g;
 }
 
 =head3 metachars
@@ -660,7 +666,7 @@ sub _format_list {
 
     $self->_manipulate_paras(sub {
         my ($text) = @_;
-        return unless $text =~ m[^\s*$identifier\s+];
+        return unless $text =~ m[^\s*($identifier)\s+];
 
         my ($pos, $html, @open) = (-1, '');
         foreach my $line ( split /\n(?=\s*$identifier)/, $text ) {
@@ -670,7 +676,7 @@ sub _format_list {
                 $html .= (' ' x $line_pos) . "<$parent>\n";
                 push @open, $line_pos;
             } elsif ($line_pos < $pos) {
-                until ( $open[-1] == $line_pos ) {
+                until ( $open[-1] <= $line_pos ) {
                     $html .= (' ' x pop @open) . "</$parent>\n";
                 }
             }

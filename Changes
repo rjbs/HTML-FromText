@@ -1,2 +1,22 @@
+2.01
+
+  - Fixed URLS, they were broken because Regexp::Common::URI was much
+    too restrictive (reported by Wim Kerkhoff).
+  - Fixed bullets. Mixing '*' and '-' were previously allowed and caused
+    problems. They can't be mixed within paragraphs that are bulleted
+    lists any longer (reported by Wim Kerkhoff).
+  - Fixed bold and underline, they were broken and matching, but not
+    substituting, across line boundaries. They no longer match across
+    line boundaries (reported by Wim Kerkhoff).
+  - Fixed bold and underline, they were too greedy.  Now they require
+    some non-word character before and after them (or the beginning or
+    ending of a line). (reported by Wim Kerkhoff).
+  - Nasty bug in lists where a nested list can cause an infinite loop
+    when bullets don't line up quite right vertically (reported by Wim
+    Kerkhoff).
+
 2.00
+
   - Initial release as complete rewrite of version 1.005 by GDR.
+  - Inadvertently created a new feature, nested bulleted and
+    numbered lists.

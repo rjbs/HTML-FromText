@@ -3,7 +3,8 @@ lib/HTML/FromText.pm
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
+META.yml			Module meta-data in YAML
 README
 t/01_features.t
+t/02_v2.01.t
 t/99_pod.t
-META.yml                                Module meta-data in YAML
