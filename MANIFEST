@@ -1,6 +1,9 @@
-FromText.pm
-MANIFEST
+Changes
+lib/HTML/FromText.pm
 Makefile.PL
+MANIFEST
+MANIFEST.SKIP
 README
-TODO
-t/text2html.t
+t/01_features.t
+t/99_pod.t
+META.yml                                Module meta-data in YAML
