@@ -9,12 +9,10 @@ $^W = 1;
 # the options to pass to text2html(), the second is the input, and the 
 # third the expected output.
 
-select DATA;
 $/ = "\n\f\n";
-select STDOUT;
 my @tests = ();
 while (<DATA>) {
-  chop; chop; chop;		# remove $/ = \n\f\n
+  chomp;
   push @tests, $_;
 }
 my $n = @tests / 3;
@@ -27,10 +25,10 @@ foreach my $i (1..$n) {
   my $output = text2html($input, @options);
   unless ($output eq $expected) {
     print STDERR
-      "\n",'-'x70,
-      "\n",$output,
-      "\n",'-'x70,
+      "\n",'--expected','-'x60,
       "\n",$expected,
+      "\n",'--but-found','-'x59,
+      "\n",$output,
       "\n",'-'x70,
       "\n";
     print "not ";
@@ -106,9 +104,39 @@ but mail@address.com on its own is not
 
 (bold => 1, underline => 1)
 
-*Words* in *bold*..._underline_...*bold* again, but 5*4, 3_1 unaffected; _underline_
+*Words* in *bold* _underline_ and *bold* again, but 5*4, 3_1 unaffected;
+_underline_ *more* *bold*
+_more_ _underline_
+Now *several words in bold* and _several in underline_ but
+equations like 5*x + 5*y or zeta_i + phi_i are not marked up.
+Here's a *phrase in bold
+crossing a newline* and an _underlined phrase
+crossing a newline_
+Single letter words: *a* _b_ *c* _d_
 
-<B>Words</B> in <B>bold</B>...<U>underline</U>...<B>bold</B> again, but 5*4, 3_1 unaffected; <U>underline</U>
+<B>Words</B> in <B>bold</B> <U>underline</U> and <B>bold</B> again, but 5*4, 3_1 unaffected;
+<U>underline</U> <B>more</B> <B>bold</B>
+<U>more</U> <U>underline</U>
+Now <B>several words in bold</B> and <U>several in underline</U> but
+equations like 5*x + 5*y or zeta_i + phi_i are not marked up.
+Here's a <B>phrase in bold
+crossing a newline</B> and an <U>underlined phrase
+crossing a newline</U>
+Single letter words: <B>a</B> <U>b</U> <B>c</B> <U>d</U>
+
+
+(paras => 1, bold => 1, underline => 1)
+
+*Bold* works OK in a paragraph context
+and so does _underline_
+
+_Underline works OK_ in a paragraph context
+and *so does bold*
+
+<P><B>Bold</B> works OK in a paragraph context
+and so does <U>underline</U></P>
+<P><U>Underline works OK</U> in a paragraph context
+and <B>so does bold</B></P>
 
 
 (lines => 1)

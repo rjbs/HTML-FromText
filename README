@@ -17,6 +17,9 @@ INSTALLATION
      perl Makefile.PL && make && make test && make install
 
 HISTORY
+     1.005  Options 'bold' and 'underline' are more aggressive in
+            recognising markup.
+
      1.004  New options 'blockparas' (mark up block quotes as ordinary
             paragraphs) and 'blockcode' (mark up block quotes in
             fixed-width font while preserving line breaks and spaces).
