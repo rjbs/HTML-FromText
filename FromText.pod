@@ -1,0 +1,358 @@
+=head1 NAME
+
+HTML::FromText - mark up text as HTML
+
+=head1 SYNOPSIS
+
+    use HTML::FromText;
+    print text2html($text, urls => 1, paras => 1, headings => 1);
+
+=head1 DESCRIPTION
+
+The C<text2html> function marks up plain text as HTML.  By default it
+expands tabs and converts HTML metacharacters into the corresponding
+entities.  More complicated transformations, such as splitting the text
+into paragraphs or marking up bulleted lists, can be carried out by
+setting the appropriate options.
+
+=head1 SUMMARY OF OPTIONS
+
+These options always apply:
+
+    metachars    Convert HTML metacharacters to entity references
+    urls         Convert URLs to links
+    email        Convert email addresses to links
+    bold         Mark up words with *asterisks* in bold
+    underline    Mark up words with _underscores_ as underlined
+
+You can then choose to treat the text according to one of these options:
+
+    pre          Treat text as preformatted
+    lines        Treat text as line-oriented
+    paras        Treat text as paragraph-oriented
+
+(If more than one of these is specified, C<pre> takes precedence over
+C<lines> which takes precedence over C<paras>.)  The following option
+applies when the C<lines> option is specified:
+
+    spaces       Preserve spaces from the original text
+
+The following options apply when the C<paras> option is specified:
+
+    blockparas   Mark up indented paragraphs as block quote
+    blockquotes  Ditto, also preserve lines from original
+    blockcode    Ditto, also preserve spaces from original
+    bullets      Mark up bulleted paragraphs as unordered list
+    headings     Mark up headings
+    numbers      Mark up numbered paragraphs as ordered list
+    tables       Mark up tables
+    title        Mark up first paragraph as level 1 heading
+
+=head1 OPTIONS
+
+=over 4
+
+=item blockparas
+
+=item blockquotes
+
+=item blockcode
+
+These options cause to C<text2html> to spot paragraphs where every line
+begins with whitespace, and mark them up as block quotes.  If more than
+one of these options is specified, C<blockparas> takes precedence over
+C<blockcode>, which takes precedence over C<blockquotes>.  All three
+options are ignored unless the C<paras> option is also set.
+
+The C<blockparas> option marks up the paragraph as a block quote with no
+other changes.  For example,
+
+    Turing wrote,
+
+        I propose to consider the question,
+        "Can machines think?"
+
+becomes
+
+    <P>Turing wrote,</P>
+    <BLOCKQUOTE>I propose to consider the question,
+    &quot;Can machines think?&quot;</BLOCKQUOTE>
+
+The C<blockquotes> option preserves line breaks in the original text.
+For example,
+
+    From "The Waste Land":
+
+        Phlebas the Phoenecian, a fortnight dead,
+        Forgot the cry of gulls, and the deep sea swell
+
+becomes
+
+    <P>From &quot;The Waste Land&quot;:</P>
+    <BLOCKQUOTE>Phlebas the Phoenecian, a fortnight dead,<BR>
+    Forgot the cry of gulls, and the deep sea swell</BLOCKQUOTE>
+
+The C<blockcode> option preserves line breaks and spaces in the original
+text and renders the paragraph in a fixed-width font.  For example:
+
+    Here's how to output numbers with commas:
+
+        sub commify {
+          local $_ = shift;
+          1 while s/^(-?\d+)(\d{3})/$1,$2/;
+          $_;
+        }
+
+becomes
+
+    <P>Here's how to output numbers with commas:</P>
+    <BLOCKQUOTE><TT>sub&nbsp;commify&nbsp;{<BR>
+    &nbsp;&nbsp;local&nbsp;$_&nbsp;=&nbsp;shift;<BR>
+    &nbsp;&nbsp;1&nbsp;while&nbsp;s/^(-?\d+)(\d{3})/$1,$2/;<BR>
+    &nbsp;&nbsp;$_;<BR>
+    }</TT></BLOCKQUOTE>
+
+=item bold
+
+Words surrounded with asterisks are marked up in bold, so C<*abc*>
+becomes C<E<lt>BE<gt>abcE<lt>/BE<gt>>.
+
+=item bullets
+
+Spots bulleted paragraphs (beginning with optional whitespace, an
+asterisk or hyphen, and whitespace) and marks them up as an unordered
+list.  Bulleted paragraphs don't have to be separated by blank lines.
+For example,
+
+    Shopping list:
+
+      * apples
+      * pears
+
+becomes
+
+    <P>Shopping list:</P>
+    <UL><LI><P>apples</P>
+    <LI><P>pears</P>
+    </UL>
+
+This option is ignored unless the C<paras> option is set.
+
+=item email
+
+Spots email addresses in the text and converts them to links.  For example
+
+    Mail me at web@perl.com.
+
+becomes
+
+    Mail me at <TT><A HREF="mailto:web@perl.com">web@perl.com</A></TT>.
+
+=item headings
+
+Spots headings (paragraphs starting with numbers) and marks them up as
+headings of the appropriate level.  For example,
+
+    1. Introduction
+
+    1.1 Background
+
+    1.1.1 Previous work
+
+    2. Conclusion 
+
+becomes
+
+    <H1>1. Introduction</H1>
+    <H2>1.1 Background</H2>
+    <H3>1.1.1 Previous work</H3>
+    <H1>2. Conclusion</H1>
+
+This option is ignored unless the C<paras> option is set.
+
+=item lines
+
+Formats the text so as to preserve line breaks.  For example,
+
+    Line 1
+    Line 2
+
+becomes
+
+    Line 1<BR>
+    Line 2
+
+If two or more of the options C<pre>, C<lines> and C<paras> are set,
+then C<pre> takes precedence over C<lines>, which takes precedence over
+C<paras>.
+
+=item metachars
+
+Converts HTML metacharacters into their corresponding entity references.
+Ampersand (C<E<amp>>) becomes C<E<amp>amp;>, less than (C<E<lt>>)
+becomes C<E<amp>lt;>, greater than (C<E<gt>>) becomes C<E<amp>gt;>, and
+quote (") becomes C<E<amp>quot;>.  This option is 1 by default.
+
+=item numbers
+
+Spots numbered paragraphs (beginning with whitespace, digits, an
+optional period/parenthesis/bracket, and whitespace) and marks them up
+as an ordered list.  Numbered paragraphs don't have to be separated by
+blank lines.  For example,
+
+    To do:
+
+       1. Write thesis
+       2. Submit it
+       3. Celebrate
+
+becomes
+
+    <P>To do:</P>
+    <OL><LI VALUE="1"><P>Write thesis</P>
+    <LI VALUE="2"><P>Submit it</P>
+    <LI VALUE="3"><P>Celebrate</P>
+    </OL>
+
+This option is ignored unless the C<paras> option is set.
+
+=item paras
+
+Format the text into paragraphs.  Paragraphs are separated by one or
+more blank lines.  For example,
+
+    Paragraph 1
+
+    Paragraph 2
+
+becomes
+
+    <P>Paragraph 1</P>
+    <P>Paragraph 2</P>
+
+If two or more of the options C<pre>, C<lines> and C<paras> are set,
+then C<pre> takes precedence over C<lines>, which takes precedence over
+C<paras>.
+
+=item pre
+
+Wrap the text in a C<E<lt>PREE<gt>> element.  For example,
+
+    preformatted
+    text
+
+becomes
+
+    <PRE>preformatted
+    text</PRE>
+
+If two or more of the options C<pre>, C<lines> and C<paras> are set,
+then C<pre> takes precedence over C<lines>, which takes precedence over
+C<paras>.
+
+=item spaces
+
+Preserves spaces throughout the text.  For example,
+
+    Line 1
+     Line  2
+      Line   3
+
+becomes
+
+    Line 1
+    &nbsp;Line&nbsp;&nbsp;2
+    &nbsp;&nbsp;Line&nbsp;&nbsp;&nbsp;3
+
+This option is ignored unless the C<lines> option is set.
+
+=item tables
+
+Spots tables and marks them up appropriately.  Columns must be separated
+by two or more spaces (this prevents accidental incorrect recognition of
+a paragraph where interword spaces happen to line up).  If there are two
+or more rows in a paragraph and all rows share the same set of (two or
+more) columns, the paragraph is assumed to be a table.  For example
+
+    -e  File exists.
+    -z  File has zero size.
+    -s  File has nonzero size (returns size).
+
+becomes
+
+    <P><TABLE>
+    <TR><TD>-e</TD><TD>File exists.</TD></TR>
+    <TR><TD>-z</TD><TD>File has zero size.</TD></TR>
+    <TR><TD>-s</TD><TD>File has nonzero size (returns size).</TD></TR>
+    </TABLE></P>
+
+C<text2html> guesses for each column whether it is intended to be left,
+centre or right aligned.
+
+This option is ignored unless the C<paras> option is set.
+
+=item title
+
+Formats the first paragraph of the text as a first-level heading.
+For example,
+
+    Paragraph 1
+
+    Paragraph 2
+
+becomes
+
+    <H1>Paragraph 1</H1>
+    <P>Paragraph 2</P>
+
+This option is ignored unless the C<paras> option is set.
+
+=item underline
+
+Words surrounded with underscores are marked up with underline, so C<_abc_>
+becomes C<E<lt>UE<gt>abcE<lt>/UE<gt>>.
+
+=item urls
+
+Spots Uniform Resource Locators (URLs) in the text and converts them
+to links.  For example
+
+    See https://perl.com/.
+
+becomes
+
+    See <TT><A HREF="https://perl.com/">https://perl.com/</A></TT>.
+
+=back
+
+=head1 SEE ALSO
+
+The C<HTML::Entities> module (part of the LWP package) provides
+functions for encoding and decoding HTML entities.
+
+Seth Golub's C<txt2html> utility does everything that C<HTML::FromText>
+does, and a few things that it would like to do.  See
+C<http://www.thehouse.org/txt2html/>.
+
+RFC 822: "Standard for the Format of ARPA Internet Text Messages"
+describes the syntax of email addresses (the more esoteric features of
+structured field bodies, in particular quoted-strings, domain literals
+and comments, are not recognized by C<HTML::FromText>).  See
+C<ftp://src.doc.ic.ac.uk/rfc/rfc822.txt>.
+
+RFC 1630: "Universal Resource Identifiers in WWW" lists the protocols
+that may appear in URLs.  C<HTML::FromText> also recognizes "https:",
+but ignores "file:" because experience suggests that it results in too
+many false positives.  See C<ftp://src.doc.ic.ac.uk/rfc/rfc1630.txt>.
+
+=head1 AUTHOR
+
+Gareth Rees C<E<lt>garethr@cre.canon.co.ukE<gt>>.
+
+=head1 COPYRIGHT
+
+Copyright (c) 1999 Canon Research Centre Europe. All rights reserved.
+This module is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=cut
