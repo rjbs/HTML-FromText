@@ -65,7 +65,7 @@ DESCRIPTION
          This option is off by default.
 
          Replaces text surrownded by underscores ("_") with the same text
-         surrounded by "u" tags.
+         surrounded by "span" tags with an underline style.
 
    Output Modes
     The following are three output modes and the options associated with
@@ -144,7 +144,7 @@ DESCRIPTION
 
          blockcode
               Convert indented paragraphs as "blockquotes" would, but also
-              preserving spaces by wrapping each line in "tt" tags.
+              preserving spaces using "pre" tags.
 
    parse
       my $html = $t2h->parse( $text );
@@ -303,6 +303,21 @@ DESCRIPTION
     Should operate on "$self->{html}".
 
     Return value is ignored.
+
+  Output
+    The output from "HTML::FromText" has been updated to pass XHTML 1.1
+    validation. Every HTML tag that should have a CSS class name does. They
+    are prefixed with "hft-" and correspond to the names of the options to
+    "new()" (or "text2html()"). For example "hft-lines", "hft-paras", and
+    "hft-urls".
+
+    One important note is the output for "underline". Because the <u> tag is
+    deprecated in this specification a "span" is used with a style attribute
+    of "text-decoration: underline". The class is "hft- underline". If you
+    want to override the "text-decoration" style in the CSS class you'll
+    need to do so like this.
+
+        text-decoration: none !important;
 
 SEE ALSO
     text2html(1).

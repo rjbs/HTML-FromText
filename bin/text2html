@@ -20,9 +20,13 @@ while ( $_ = shift @ARGV ) {
 
 @ARGV = @files;
 
-print text2html
+my $html = text2html
   do {undef $/; <>},
   %options;
+
+$html .= "\n" unless $html =~ /\n$/;
+
+print $html;
 
 exit 0;
 

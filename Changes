@@ -1,3 +1,17 @@
+2.03
+
+  - Working toward standards compliance.
+    - blockcode now uses pre tags.
+    - blockparas and blockquotes use div tags.
+  - Remove dependency on Regexp::Common.
+  - XHTML 1.1 valid output.
+  - CSS Class names for every option type.
+  - Fixed a but in tables where duplicate breakpoints were being
+    entered (reported by Dan Wright).
+  - Fixed but in tables where breakpoints of two spaces were ignored.
+  - text2html command line utility ensures output ends in newline.
+  - Add example emacs macros for modifying regions with text2html.
+
 2.02
 
   - Added command line utility called 'text2html'.  It will be

@@ -11,7 +11,6 @@ WriteMakefile (
                PREREQ_PM     => {
                                  'Scalar::Util'          =>  '1.12',
                                  'HTML::Entities'        =>  '1.26',
-                                 'Regexp::Common'        =>  '2.113',
                                  'Text::Tabs'            => '98.1128',
                                  'Email::Find::addrspec' =>  '0.09',
                                  'Exporter::Lite'        =>  '0.01',

@@ -1,13 +1,12 @@
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         HTML-FromText
-version:      2.02
+version:      2.03
 version_from: lib/HTML/FromText.pm
 installdirs:  site
 requires:
     Test::More:                    0.47
     Scalar::Util:                  1.12
     Text::Tabs:                    98.1128
-    Regexp::Common:                2.113
     Exporter::Lite:                0.01
     Email::Find::addrspec:         0.09
     HTML::Entities:                1.26

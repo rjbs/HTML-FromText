@@ -1,5 +1,6 @@
 bin/text2html
 Changes
+ext/emacs-macros.el
 lib/HTML/FromText.pm
 Makefile.PL
 MANIFEST
@@ -9,5 +10,6 @@ README
 t/01_features.t
 t/02_v2.01.t
 t/03_v2.02.t
+t/04_v2.03.t
 t/99_pod.t
 t/files/paras.txt

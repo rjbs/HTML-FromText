@@ -20,14 +20,13 @@ HTML::FromText - Convert plain text to HTML.
 use strict;
 use Scalar::Util          qw[blessed];
 use HTML::Entities        qw[encode_entities];
-use Regexp::Common        qw[delimited];
 use Text::Tabs            qw[expand];
 use Email::Find::addrspec qw[$Addr_spec_re];
 use Exporter::Lite;
 
 use vars qw[$VERSION @EXPORT @DECORATORS $PROTOCOLS];
 
-$VERSION    = '2.02';
+$VERSION    = '2.03';
 @EXPORT     = qw[text2html];
 @DECORATORS = qw[urls email bold underline];
 $PROTOCOLS  = qr/
@@ -104,7 +103,7 @@ surrounded by C<strong> tags.
 This option is off by default.
 
 Replaces text surrownded by underscores (C<_>) with the same text
-surrounded by C<u> tags.
+surrounded by C<span> tags with an underline style.
 
 =back
 
@@ -208,7 +207,7 @@ line breaks.
 =item blockcode
 
 Convert indented paragraphs as C<blockquotes> would, but also preserving
-spaces by wrapping each line in C<tt> tags.
+spaces using C<pre> tags.
 
 =back
 
@@ -350,7 +349,7 @@ Return value is ignored.
 
 sub pre {
     my ($self) = @_;
-    $self->{html} = join $self->{html}, '<pre>', '</pre>';
+    $self->{html} = join $self->{html}, '<pre class="hft-pre">', '</pre>';
 }
 
 =head3 lines
@@ -370,6 +369,8 @@ sub lines {
     my ($self) = @_;
     $self->{html} =~ s[ ][&nbsp;]g if $self->{options}->{spaces};
     $self->{html} =~ s[$][<br />]gm;
+    $self->{html} =~ s[^][<div class="hft-lines">];
+    $self->{html} =~ s[$][</div>];
 }
 
 =head3 paras
@@ -408,7 +409,7 @@ sub paras {
 
     $self->{paras}->{0}->{html} = join(
                                        $self->{paras}->{0}->{text},
-                                       "<h1>", "</h1>\n"
+                                       q[<h1 class="hft-title">], "</h1>\n"
                                       ) if $options->{title};
 
     $self->headings if $options->{headings};
@@ -421,7 +422,7 @@ sub paras {
     elsif ( $options->{blockquotes} ) { $self->blockquotes }
     elsif ( $options->{blockcode}   ) { $self->blockcode   }
 
-    $self->_manipulate_paras(sub { "<p>$_[0]</p>\n" });
+    $self->_manipulate_paras(sub { qq[<p class="hft-paras">$_[0]</p>\n] });
 
     $self->{html} = join "\n", map $paras{$_}->{html},
       sort { $a <=> $b } keys %paras;
@@ -445,7 +446,7 @@ sub headings {
 
         my $depth; $depth++ for split /\./, $1;
 
-        "<h$depth>$text</h$depth>\n";
+        qq[<h$depth class="hft-headings">$text</h$depth>\n];
     });
 }
 
@@ -459,8 +460,8 @@ Return value is ignored.
 
 sub bullets {
     my ($self) = @_;
-    $self->_format_list( qr/[*]/, 'ul' );
-    $self->_format_list( qr/[-]/, 'ul' );
+    $self->_format_list( qr/[*]/, 'ul', 'hft-bullets' );
+    $self->_format_list( qr/[-]/, 'ul', 'hft-bullets' );
 }
 
 =head3 numbers
@@ -473,7 +474,7 @@ Return value is ignored.
 
 sub numbers {
     my ($self) = @_;
-    $self->_format_list( qr/[0-9]/, 'ol');
+    $self->_format_list( qr/[0-9]/, 'ol', 'hft-numbers');
 }
 
 =head3 tables
@@ -517,7 +518,7 @@ sub blockparas {
         my ($text) = $self->_remove_indent( $_[0], 1 );
         return unless $text;
 
-        "<blockquote>$text</blockquote>\n";
+        qq[<blockquote class="hft-blockparas"><div>$text</div></blockquote>\n];
     });
 }
 
@@ -539,7 +540,7 @@ sub blockquotes {
 
         $text =~ s[\n|$][<br />\n]g;
 
-        "<blockquote>$text</blockquote>\n";
+        qq[<blockquote class="hft-blockquotes"><div>$text</div></blockquote>\n];
     });
 }
 
@@ -559,11 +560,10 @@ sub blockcode {
         my ($text) = $self->_remove_indent( $_[0], 1 );
         return unless $text;
 
-        $text =~ s[ ][&nbsp;]g;
-        $text =~ s[^][<tt>]mg;
-        $text =~ s[\n|$][</tt><br />\n]g;
+        $text =~ s[^][<pre>];
+        $text =~ s[$][</pre>];
 
-        "<blockquote>$text</blockquote>\n";
+        qq[<blockquote class="hft-blockcode">$text</blockquote>\n];
     });
 }
 
@@ -580,7 +580,7 @@ Return value is ignored.
 sub urls {
     my ($self) = @_;
     $self->{html} =~ s[\b((?:$PROTOCOLS):[^\s<]+[\w/])]
-                      [<a href="$1">$1</a>]og;
+                      [<a href="$1" class="hft-urls">$1</a>]og;
 }
 
 =head3 email
@@ -597,7 +597,7 @@ Return value is ignored.
 sub email {
     my ($self) = @_;
     $self->{html} =~ s[($Addr_spec_re)]
-                      [<a href="mailto:$1">$1</a>]og;
+                      [<a href="mailto:$1" class="hft-email">$1</a>]og;
 }
 
 =head3 underline
@@ -614,7 +614,7 @@ Return value is ignored.
 sub underline {
     my ($self) = @_;
     $self->{html} =~ s[(?:^|(?<=\W))((_)([^\\_\n]*(?:\\.[^\\_\n]*)*)(_))(?:(?=\W)|$)]
-                      [<u>$3</u>]g;
+                      [<span class="hft-underline" style="text-decoration: underline">$3</span>]g;
 }
 
 =head3 bold
@@ -630,7 +630,7 @@ Return value is ignored.
 sub bold {
     my ($self) = @_;
     $self->{html} =~ s[(?:^|(?<=\W))((\*)([^\\\*\n]*(?:\\.[^\\\*\n]*)*)(\*))(?:(?=\W)|$)]
-                      [<strong>$3</strong>]g;
+                      [<strong class="hft-bold">$3</strong>]g;
 }
 
 =head3 metachars
@@ -663,7 +663,7 @@ sub _carp {
 }
 
 sub _format_list {
-    my ($self, $identifier, $parent) = @_;
+    my ($self, $identifier, $parent, $class) = @_;
 
     $self->_manipulate_paras(sub {
         my ($text) = @_;
@@ -674,14 +674,14 @@ sub _format_list {
             $line =~ s[(\s*)$identifier][];
             my $line_pos = length $1;
             if ($line_pos > $pos) {
-                $html .= (' ' x $line_pos) . "<$parent>\n";
+                $html .= (' ' x $line_pos) . qq[<$parent class="$class">\n];
                 push @open, $line_pos;
             } elsif ($line_pos < $pos) {
                 until ( $open[-1] <= $line_pos ) {
                     $html .= (' ' x pop @open) . "</$parent>\n";
                 }
             }
-            $html .= (' ' x ($pos = $line_pos)) . "<li>$line\n";
+            $html .= (' ' x ($pos = $line_pos)) . "<li>$line</li>\n";
         }
         $html .= "</$parent>\n"x@open;
     });
@@ -706,7 +706,7 @@ sub _table_initial_spaces {
         if ( $chars[$_] eq ' ' ) {
             $spaces{$_} = {start => $_, end => undef} unless $open_space;
         } else {
-            if ( $open_space && $_ - $open_space->{start} - 1 > 1 ) {
+            if ( $open_space && $_ - $open_space->{start} > 1 ) {
                 $open_space->{end} = $_ - 1;
             } else {
                 delete $spaces{$open_space->{start}} if $open_space;
@@ -719,7 +719,7 @@ sub _table_initial_spaces {
 sub _table_find_columns {
     my ($self, $spaces, $lines) = @_;
 
-    my @spots;
+    my %spots;
     foreach my $line ( @{$lines} ) {
         foreach my $pos ( sort { $a <=> $b } keys %{$spaces} ) {
             my $key;
@@ -727,15 +727,31 @@ sub _table_find_columns {
                  if substr( $line, $spaces->{$pos}->{start}, 1 ) eq ' ';
                $key = $spaces->{$pos}->{end}
                  if substr( $line, $spaces->{$pos}->{end}, 1 )   eq ' ' && ! $key;
-               $key ? push @spots, $key : delete $spaces->{$pos};
+            if ( $key ) {
+                $spots{$key}++;
+                $spots{$spaces->{$pos}->{start}}++
+                  if $spots{$spaces->{$pos}->{start}} && $key ne $spaces->{$pos}->{start};
+                $spots{$spaces->{$pos}->{end}}++
+                  if $key ne $spaces->{$pos}->{end};
+            } else {
+                delete $spaces->{$pos};
+            }
         }
-        foreach my $spot (@spots) {
+        foreach my $spot (keys %spots) {
             if ( substr( $line, $spot, 1 ) ne ' ' ) {
-                @spots = grep { $_ != $spot } @spots;
+                delete $spots{$spot};
+            }
+            if ( exists $spaces->{$spot}) {
+                my $space = $spaces->{$spot};
+                if ( exists $spots{$space->{start}} && $spots{$space->{end}}) {
+                    delete $spots{$spot};
+                }
             }
         }
     }
 
+
+    my @spots = grep { $spots{$_} == @{$lines} } sort { $a <=> $b } keys %spots;
     return @spots ? join( '', (
                       map {
                           my $ret = 'A' . ( $spots[$_] - ( $_ == 0 ? 0 : $spots[$_ - 1] ) );
@@ -747,7 +763,7 @@ sub _table_find_columns {
 sub _table_create {
     my ($self, $columns, $lines) = @_;
 
-    my $table = "<table>\n";
+    my $table = qq[<table class="hft-tables">\n];
     foreach my $line ( @{$lines} ) {
         $table .= join( '',
                         '  <tr><td>',
@@ -771,6 +787,22 @@ sub _remove_indent {
 1;
 
 __END__
+
+=head2 Output
+
+The output from C<HTML::FromText> has been updated to pass XHTML 1.1
+validation. Every HTML tag that should have a CSS class name does. They
+are prefixed with C<hft-> and correspond to the names of the options to
+C<new()> (or C<text2html()>). For example C<hft-lines>, C<hft-paras>,
+and C<hft-urls>.
+
+One important note is the output for C<underline>. Because the <u> tag
+is deprecated in this specification a C<span> is used with a style
+attribute of C<text-decoration: underline>. The class is C<hft-
+underline>. If you want to override the C<text-decoration> style in the
+CSS class you'll need to do so like this.
+
+    text-decoration: none !important;
 
 =head1 SEE ALSO
 
