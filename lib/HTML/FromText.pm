@@ -26,7 +26,7 @@ use Exporter::Lite;
 
 use vars qw[$VERSION @EXPORT @DECORATORS $PROTOCOLS];
 
-$VERSION    = '2.03';
+$VERSION    = '2.04';
 @EXPORT     = qw[text2html];
 @DECORATORS = qw[urls email bold underline];
 $PROTOCOLS  = qr/
@@ -718,7 +718,7 @@ sub _table_initial_spaces {
 
 sub _table_find_columns {
     my ($self, $spaces, $lines) = @_;
-
+    return unless keys %{$spaces};
     my %spots;
     foreach my $line ( @{$lines} ) {
         foreach my $pos ( sort { $a <=> $b } keys %{$spaces} ) {
@@ -737,7 +737,7 @@ sub _table_find_columns {
                 delete $spaces->{$pos};
             }
         }
-        foreach my $spot (keys %spots) {
+        foreach my $spot (sort {$b <=> $a} keys %spots) {
             if ( substr( $line, $spot, 1 ) ne ' ' ) {
                 delete $spots{$spot};
             }

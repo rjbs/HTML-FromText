@@ -1,3 +1,8 @@
+2.04
+
+  - Fixed bug when run under 5.8.1 and always-random hashes.
+  - Emacs macros enhanced.
+
 2.03
 
   - Working toward standards compliance.
