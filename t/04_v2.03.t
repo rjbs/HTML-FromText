@@ -12,8 +12,8 @@ __HTML__
 $html = text2html( <<__TEXT__, paras => 1, blockparas => 1 );
   Foo Bar
 __TEXT__
-cmp_ok( $html, 'eq', <<__HTML__, 'blockparas should use div' );
-<blockquote class="hft-blockparas"><div>Foo Bar</div></blockquote>
+cmp_ok( $html, 'eq', <<__HTML__, 'blockparas should use p' );
+<blockquote class="hft-blockparas"><p>Foo Bar</p></blockquote>
 __HTML__
 
 $html = text2html( <<__TEXT__, paras => 1, blockquotes => 1 );

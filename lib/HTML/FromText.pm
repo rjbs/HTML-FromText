@@ -26,7 +26,7 @@ use Exporter::Lite;
 
 use vars qw[$VERSION @EXPORT @DECORATORS $PROTOCOLS];
 
-$VERSION    = '2.04';
+$VERSION    = '2.05';
 @EXPORT     = qw[text2html];
 @DECORATORS = qw[urls email bold underline];
 $PROTOCOLS  = qr/
@@ -516,9 +516,14 @@ sub blockparas {
 
     $self->_manipulate_paras(sub{
         my ($text) = $self->_remove_indent( $_[0], 1 );
+        my ($pnum, $paras) = @_[1,2];
         return unless $text;
 
-        qq[<blockquote class="hft-blockparas"><div>$text</div></blockquote>\n];
+        $self->_consolidate_blocks(
+                                   ( exists $paras->{$pnum - 1} ? $paras->{$pnum -1} : undef ),
+                                   'blockparas', 1,
+                                   qq[<blockquote class="hft-blockparas"><p>$text</p></blockquote>\n],
+                                  );
     });
 }
 
@@ -558,12 +563,16 @@ sub blockcode {
 
     $self->_manipulate_paras(sub {
         my ($text) = $self->_remove_indent( $_[0], 1 );
+        my ($pnum, $paras) = @_[1,2];
         return unless $text;
 
         $text =~ s[^][<pre>];
         $text =~ s[$][</pre>];
-
-        qq[<blockquote class="hft-blockcode">$text</blockquote>\n];
+        $self->_consolidate_blocks(
+                                   ( exists $paras->{$pnum - 1} ? $paras->{$pnum -1} : undef ),
+                                   'blockcode', 0,
+                                   qq[<blockquote class="hft-blockcode">$text</blockquote>\n],
+                                  );
     });
 }
 
@@ -692,8 +701,10 @@ sub _manipulate_paras {
 
     my  $paras = $self->{paras};
 
-    foreach my $para (map $paras->{$_}, sort { $a <=> $b } keys %{$paras}) {
-        $para->{html} = $action->($para->{text}) unless $para->{html};
+    foreach my $pnum ( sort { $a <=> $b } keys %{$paras}) {
+        my $para = $paras->{$pnum};
+        $para->{html} = $action->($para->{text}, $pnum,  $paras)
+          unless $para->{html};
     }
 }
 
@@ -782,6 +793,16 @@ sub _remove_indent {
     return if $text !~ m[^(\s+).+(?:\n\1.+)*$] && $strict;
     $text =~ s[^$1][]mg if $1;
     return $text;
+}
+
+sub _consolidate_blocks {
+    my ($self, $prev_para, $class, $keep_inner, $html) = @_;
+    if ( $prev_para && $prev_para->{html} =~ m[<blockquote class="hft-$class"><(\w+)>] ) {
+        my $inner_tag = $keep_inner ? '' : qr[</?$1>];
+        $prev_para->{html} =~ s[$inner_tag</blockquote>][];
+        $html =~ s[<blockquote class="hft-$class">$inner_tag][];
+    }
+    return $html;
 }
 
 1;

@@ -197,7 +197,7 @@ $html = $t2h->parse( <<__TEXT__ );
   Test
 __TEXT__
 cmp_ok( $html, 'eq', <<__HTML__, 'blockparas' );
-<blockquote class="hft-blockparas"><div>Test</div></blockquote>
+<blockquote class="hft-blockparas"><p>Test</p></blockquote>
 __HTML__
 
 $t2h = HTML::FromText->new({paras => 1, blockquotes => 1});

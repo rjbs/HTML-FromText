@@ -1,3 +1,9 @@
+2.05
+
+  - blockparas uses <p> as its inner tag, instead of <div>
+  - blockparas and blockcode are consolidated when they are found in
+    groups.  blocklines are left out because they're so literal.
+
 2.04
 
   - Fixed bug when run under 5.8.1 and always-random hashes.
