@@ -219,7 +219,7 @@ $html = $t2h->parse( <<__TEXT__ );
 __TEXT__
 cmp_ok( $html, 'eq', <<__HTML__, 'blockcode' );
 <blockquote><tt>Test</tt><br />
-<tt>This Please</tt><br />
+<tt>This&nbsp;Please</tt><br />
 </blockquote>
 __HTML__
 

@@ -1,3 +1,10 @@
+2.02
+
+  - Added command line utility called 'text2html'.  It will be
+    installed when this version of HTML::FromText is built and
+    installed.
+  - Fixed but in blockcode, wasn't preserving spaces.
+
 2.01
 
   - Fixed URLS, they were broken because Regexp::Common::URI was much

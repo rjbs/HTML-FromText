@@ -90,7 +90,7 @@ DESCRIPTION
               All spaces are HTML encoded.
 
     paras
-         This option is off be default.
+         This option is off by default.
 
          Preserves paragraphs by wrapping them in "p" tags.
 
@@ -154,7 +154,7 @@ DESCRIPTION
     "Text::Tabs::expand()".
 
   Functions
-  text2html
+   text2html
         my $html = text2html(
                              $text,
                              urls  => 1,
@@ -303,6 +303,9 @@ DESCRIPTION
     Should operate on "$self->{html}".
 
     Return value is ignored.
+
+SEE ALSO
+    text2html(1).
 
 AUTHOR
     Casey West <casey@geeknest.com>.

@@ -27,7 +27,7 @@ use Exporter::Lite;
 
 use vars qw[$VERSION @EXPORT @DECORATORS $PROTOCOLS];
 
-$VERSION    = '2.01';
+$VERSION    = '2.02';
 @EXPORT     = qw[text2html];
 @DECORATORS = qw[urls email bold underline];
 $PROTOCOLS  = qr/
@@ -559,6 +559,7 @@ sub blockcode {
         my ($text) = $self->_remove_indent( $_[0], 1 );
         return unless $text;
 
+        $text =~ s[ ][&nbsp;]g;
         $text =~ s[^][<tt>]mg;
         $text =~ s[\n|$][</tt><br />\n]g;
 
@@ -770,6 +771,10 @@ sub _remove_indent {
 1;
 
 __END__
+
+=head1 SEE ALSO
+
+L<text2html(1)>.
 
 =head1 AUTHOR
 

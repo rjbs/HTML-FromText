@@ -1,3 +1,4 @@
+bin/text2html
 Changes
 lib/HTML/FromText.pm
 Makefile.PL
@@ -7,4 +8,6 @@ META.yml			Module meta-data in YAML
 README
 t/01_features.t
 t/02_v2.01.t
+t/03_v2.02.t
 t/99_pod.t
+t/files/paras.txt
