@@ -1,8 +1,7 @@
+use strict;
+use warnings;
 package HTML::FromText;
-
-=head1 NAME
-
-HTML::FromText - Convert plain text to HTML.
+# ABSTRACT: converts plain text to HTML
 
 =head1 SYNOPSIS
 
@@ -17,16 +16,14 @@ HTML::FromText - Convert plain text to HTML.
 
 =cut
 
-use strict;
-use Scalar::Util          qw[blessed];
-use HTML::Entities        qw[encode_entities];
-use Text::Tabs            qw[expand];
-use Email::Find::addrspec qw[$Addr_spec_re];
-use Exporter::Lite;
+use Email::Find::addrspec 0.09  qw[$Addr_spec_re];
+use Exporter 5.58         qw[import];
+use HTML::Entities 1.26   qw[encode_entities];
+use Scalar::Util 1.12     qw[blessed];
+use Text::Tabs 98.1128    qw[expand];
 
 use vars qw[$VERSION @EXPORT @DECORATORS $PROTOCOLS];
 
-$VERSION    = '2.05';
 @EXPORT     = qw[text2html];
 @DECORATORS = qw[urls email bold underline];
 $PROTOCOLS  = qr/
@@ -42,11 +39,7 @@ options that shape the conversion. There is a utility function,
 C<text2html>, that's exported by default. This function is simply a short-
 cut to the Object Oriented interface described in detail below.
 
-=head2 Methods
-
-The following methods may be used as the public interface.
-
-=head3 new
+=method new
 
     my $t2h = HTML::FromText->new({
         paras      => 1,
@@ -255,7 +248,7 @@ sub new {
     return bless \%self, blessed($class) || $class;
 }
 
-=head3 parse
+=method parse
 
   my $html = $t2h->parse( $text );
 
@@ -287,9 +280,7 @@ sub parse {
     return $self->{html};
 }
 
-=head2 Functions
-
-=head3 text2html
+=func text2html
 
     my $html = text2html(
                          $text,
@@ -828,19 +819,5 @@ CSS class you'll need to do so like this.
 =head1 SEE ALSO
 
 L<text2html(1)>.
-
-=head1 AUTHOR
-
-Casey West <F<casey@geeknest.com>>.
-
-=head1 AUTHOR EMERITUS
-
-Gareth Rees <F<garethr@cre.canon.co.uk>>.
-
-=head1 COPYRIGHT
-
-  Copyright (c) 2003 Casey West.  All rights reserved.
-  This module is free software; you can redistribute it and/or modify it
-  under the same terms as Perl itself.
 
 =cut
