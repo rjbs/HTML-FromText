@@ -1,13 +1,11 @@
 use Test::More;
 
 my $script = 'blib/script/text2html';
-
-plan skip_all => "$script doesn't exist"
-  unless -e $script;
+$script = 'bin/text2html' unless -e $script;
 
 plan 'no_plan';
 
-open T2H, "perl -Iblib/lib $script --paras t/files/paras.txt |" or die $!;
+open T2H, "$^X -Iblib/lib $script --paras t/files/paras.txt |" or die $!;
 undef $/;
 my $html = <T2H>;
 close T2H;
