@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.06      2013-07-03 13:21:34 America/New_York
           - Repackage, update to pass with different escaping
 2.05
 
