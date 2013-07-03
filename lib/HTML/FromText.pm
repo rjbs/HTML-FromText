@@ -22,11 +22,9 @@ use HTML::Entities 1.26   qw[encode_entities];
 use Scalar::Util 1.12     qw[blessed];
 use Text::Tabs 98.1128    qw[expand];
 
-use vars qw[$VERSION @EXPORT @DECORATORS $PROTOCOLS];
-
-@EXPORT     = qw[text2html];
-@DECORATORS = qw[urls email bold underline];
-$PROTOCOLS  = qr/
+our @EXPORT     = qw[text2html];
+our @DECORATORS = qw[urls email bold underline];
+our $PROTOCOLS  = qr/
                  afs      | cid      | ftp      | gopher   |
                  http     | https    | mid      | news     |
                  nntp     | prospero | telnet   | wais
