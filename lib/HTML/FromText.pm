@@ -32,7 +32,7 @@ our $PROTOCOLS  = qr/
 
 =head1 DESCRIPTION
 
-C<HTML::FromText> converts plain text to HTML. There are a handfull of
+C<HTML::FromText> converts plain text to HTML. There are a handful of
 options that shape the conversion. There is a utility function,
 C<text2html>, that's exported by default. This function is simply a short-
 cut to the Object Oriented interface described in detail below.
