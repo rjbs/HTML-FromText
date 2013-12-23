@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 # -*- cperl -*-
+use strict;
 use HTML::FromText;
 # PODNAME:  text2html
 # ABSTRACT: convert plain text to HTML
 
-my %options, @files;
+my (%options, @files);
 
 my $options_done = 0;
 while ( $_ = shift @ARGV ) {
