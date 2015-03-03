@@ -577,8 +577,8 @@ Return value is ignored.
 
 sub urls {
     my ($self) = @_;
-    $self->{html} =~ s[\b((?:$PROTOCOLS):[^\s<]+[\w/])]
-                      [<a href="$1" class="hft-urls">$1</a>]og;
+    $self->{html} =~ s{\b((?:$PROTOCOLS):[-\w.~:/?#\[\]\@!\$&'()*+,;=]+)}
+                      {<a href="$1" class="hft-urls">$1</a>}og;
 }
 
 =head3 email
